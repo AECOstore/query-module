@@ -100,28 +100,21 @@ const App = ({piral} : {piral: PiletApi}) => {
 
   async function doQuery() {
     const sess = new Session()
-    const project:any = new Catalog(sess, piral.getData(constants.ACTIVE_PROJECT))
-    const refReg = new ReferenceRegistry(sess, piral.getData(constants.REFERENCE_REGISTRY), project)
+    const p = piral.getData(constants.ACTIVE_PROJECT)
+    const projectUrl = p[0].projectUrl
+    const refRegUrl = p[0].referenceRegistry
+
+    const project:any = new Catalog(sess, projectUrl)
     const endpoints = await project.aggregateSparqlEndpoints()
     const myEngine = new QueryEngine()
     const res = await myEngine.query(query, {sources: endpoints.map(i => i.satellite)})
     const {data} = await myEngine.resultToString(res, 'application/sparql-results+json')
     const results = await streamToString(data)
-    await propagate(JSON.parse(results))
-    // setQueryResults(() => results)
-    // const d = await bindings.toArray().then(i => i.map((item) => {return {activeDocument: item.get('g').value, identifier: item.get('element').value}}))
-
+    
+    const things = JSON.parse(results).results.bindings.map(b => {return {activeDocument: b["g"].value, identifier: b["element"].value}})
+    piral.setDataGlobal(constants.SELECTED_REFERENCES, things)
   }
 
-  async function propagate(results) {
-    const data = results.results.bindings.map(b => {return {activeDocument: b["g"].value, identifier: b["element"].value}})
-    const res = await fetch("http://localhost:4000/alias", {method: "POST", headers: {"Content-Type": "application/json"},body: JSON.stringify({
-      data,
-      referenceRegistryUrl: piral.getData(constants.REFERENCE_REGISTRY),
-      projectUrl: piral.getData(constants.ACTIVE_PROJECT)
-    })}).then(i => i.json())
-    piral.setDataGlobal(constants.SELECTED_CONCEPTS, res)
-  }
 
   return (
     <div style={{ margin: 20 }}>

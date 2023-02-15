@@ -1,0 +1,17 @@
+@prefix pav: <http://purl.org/pav/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix mfe: <http://w3id.org/mifesto#> .
+@prefix doap: <http://usefulinc.com/ns/doap#> .
+@prefix schema: <https://schema.org/> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+
+<> a mfe:Manifest;
+rdfs:label "query" ;
+    pav:hasVersion <#cd41abfc-858a-412b-8db0-326b9b867b94> .
+
+
+<#cd41abfc-858a-412b-8db0-326b9b867b94> a mfe:Edition ;
+    doap:revision "v2" ;
+    mfe:code <http://localhost:2004/$pilet-api/0/index.js> .
+
+    

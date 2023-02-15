@@ -4,7 +4,9 @@ import Icon from '@mui/icons-material/ManageSearch';
 import App from './App'
 
 export function setup(app: PiletApi) {
-  const connect = app.makeState(app)
+  const constants = app.getData("CONSTANTS")
+
+  const connect = app.makeState(app, constants)
   const Module = connect(({state, actions}) => app.withState(App, {app, state, actions}))
 
   app.showNotification(`Hello from ${app.meta.name} Pilet!`, {
