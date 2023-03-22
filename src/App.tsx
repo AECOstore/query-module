@@ -176,7 +176,7 @@ const App = ({ piral }) => {
   return (
     <div>
       <Typography>Project Data Query</Typography>
-      <Accordion expanded={openPanels.includes("sourcesPanel")} onChange={() => handleChange('sourcesPanel')}>
+      {/* <Accordion expanded={openPanels.includes("sourcesPanel")} onChange={() => handleChange('sourcesPanel')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1bh-content"
@@ -185,12 +185,11 @@ const App = ({ piral }) => {
           <Typography sx={{ width: '33%', flexShrink: 0 }}>
             Sources
           </Typography>
-          {/* <Typography sx={{ color: 'text.secondary' }}>Set the sources for your query</Typography> */}
         </AccordionSummary>
         <AccordionDetails>
-          {/* <SourcesComponent setFilter={setFilter} getAllAllowedSources={getAllAllowedSources} loading={loading}/> */}
+          <SourcesComponent setFilter={setFilter} getAllAllowedSources={getAllAllowedSources} loading={loading}/>
         </AccordionDetails>
-      </Accordion>
+      </Accordion> */}
       <Accordion expanded={openPanels.includes("queryPanel")} onChange={() => handleChange('queryPanel')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -200,6 +199,7 @@ const App = ({ piral }) => {
           <Typography sx={{ width: '33%', flexShrink: 0 }}>
             Query
           </Typography>
+          <Typography sx={{ color: 'text.secondary' }}>Set the variables to propagate by including a '_€'.</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <TextField
@@ -217,7 +217,7 @@ const App = ({ piral }) => {
           <Button style={{ marginTop: 15 }} disabled={loading} onClick={doQuery} fullWidth color="primary" variant="contained">QUERY</Button>
         </AccordionDetails>
       </Accordion>
-      <Accordion expanded={openPanels.includes("resultsPanel")} onChange={() => handleChange('resultsPanel')}>
+      {/* <Accordion expanded={openPanels.includes("resultsPanel")} onChange={() => handleChange('resultsPanel')}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1bh-content"
@@ -229,7 +229,7 @@ const App = ({ piral }) => {
         </AccordionSummary>
         <AccordionDetails>
 
-      {/* <div style={{ height: 260 }}>
+      <div style={{ height: 260 }}>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -239,9 +239,9 @@ const App = ({ piral }) => {
           onSelectionModelChange={propagate}
           disableSelectionOnClick
         />
-      </div> */}
+      </div>
         </AccordionDetails>
-      </Accordion>
+      </Accordion> */}
     </div>
   )
 }
