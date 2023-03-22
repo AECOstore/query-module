@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { PiletApi } from 'consolid-shell';
 import Icon from '@mui/icons-material/ManageSearch';
-import App from './App'
+import App from "./App"
 
 export function setup(app: PiletApi) {
   const constants = app.getData("CONSTANTS")
