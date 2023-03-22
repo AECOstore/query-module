@@ -62,7 +62,7 @@
     "buffer": "^6.0.3",
     "consolid-daapi": "^0.0.8",
     "consolid-raapi": "^0.0.9",
-    "consolid-shell": "file:../../shell/dist/emulator/consolid-shell-1.0.1.tgz",
+    "consolid-shell": "github:AECOstore/shell",
     "react-service-worker": "^0.1.1",
     "sparqlalgebrajs": "^4.0.3",
     "stream-browserify": "^3.0.0"
