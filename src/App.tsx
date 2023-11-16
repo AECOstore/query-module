@@ -17,10 +17,10 @@ import SourcesComponent from './components/SourcesComponent'
 
 const initialQuery = `
 PREFIX beo: <https://pi.pauwel.be/voc/buildingelement#>
-SELECT ?element_€
-WHERE {
+SELECT ?element_€ ?g
+WHERE { GRAPH ?g {
  ?element_€ a beo:Door .
-}
+}}
 `;
 
 const rdfContentTypes = [
@@ -30,7 +30,7 @@ const rdfContentTypes = [
 const App = ({ piral }) => {
   const constants = piral.getData("CONSTANTS")
   const [query, setQuery] = useState(initialQuery)
-  const [queryResults, setQueryResults] = useState([]);
+  const [queryResults, setQueryResults] = useState();
   const [filter, setFilter] = useState(`?resource <${DCAT.mediaType}> <https://www.iana.org/assignments/media-types/model/gltf+json>`)
   // const [variables, setVariables] = useState([]);
   const [error, setError] = useState(null);
@@ -48,9 +48,7 @@ const App = ({ piral }) => {
   //         return variable.checked;
   //       })
   //       .map((e) => e.name);
-  //     const translation = translate(query);
-  //     setError(null);
-  //     setVariables(translation.variables.map(i => i.value))
+
   //     // setVariables(
   //     //   translation.variables.map((e) => {
   //     //     return {
@@ -91,78 +89,61 @@ const App = ({ piral }) => {
   }, [queryResults])
 
   
-  useEffect(() => {
-    getAllAllowedSources()
-}, [])
+//   useEffect(() => {
+//     getAllAllowedSources()
+// }, [])
 
- async function getFilteredResources() {
-  setLoading(true)
-  try {
-      const project = piral.getData(constants.ACTIVE_PROJECT)
-      let f = filter
-      const all = await piral.getResourcesByFilter(project, f)
-      console.log('all :>> ', all);
-  } catch (error) {
-      console.log('error :>> ', error);
-  }
-  setLoading(false)
- }
- 
-  async function getAllAllowedSources() {
-    setLoading(true)
-    try {
-        const project = piral.getData(constants.ACTIVE_PROJECT)
-        let f = ``
-        for (const [index, contentType] of rdfContentTypes.entries()) {
-            f += `{?resource <${DCAT.mediaType}> <${contentType}>}`
-            if (index < rdfContentTypes.length  - 1 ) {
-                f += " UNION "
-            }
-        }
-        const all = await piral.getResourcesByFilter(project, f)
-        for (const res of all) {
-          const concepts = await piral.getAssociatedConcepts(res.resource.value, project)
-          setAllowedResources(prev => {return {...prev, [res.resource.value]: concepts}})
-        }
-    } catch (error) {
-        console.log('error :>> ', error);
-    }
-    setLoading(false)
-}
+//   async function getAllAllowedSources() {
+//     setLoading(true)
+//     try {
+//         const project = piral.getData(constants.ACTIVE_PROJECT)
 
-  function extractIdentifiers(bindings, vars) {
+//         const all = await piral.getResourcesByContentType(piral, rdfContentTypes)
+//         console.log('all :>> ', all);
+//         for (const res of all) {
+//           const concepts = await piral.getAssociatedConcepts(res.distribution, project)
+//           setAllowedResources(prev => {return {...prev, [res.distribution]: concepts}})
+//         }
+//     } catch (error) {
+//         console.log('error :>> ', error);
+//     }
+//     setLoading(false)
+// }
+
+  function extractIdentifiers(bindings) {
     const identifiers = []
-    for (const v of vars) {
+    const translation = translate(query);
+    
+    console.log('translation.variables :>> ', translation.variables);
+    for (const v of translation.variables.map(i => i.value)) {
       console.log('v :>> ', v);
       if (v.endsWith("_€")) {
-        for (const b of bindings)
-          identifiers.push(b[v].value)
+        for (const b of bindings){
+        console.log('b[v] :>> ', b.get(v));
+          identifiers.push(b.get(v).id)}
       }
     }
     return identifiers
   }
 
   async function doQuery() {
-    const p = piral.getData(constants.ACTIVE_PROJECT)
-    const r = {}
+    const results = await piral.queryProject(piral, query)
     const vars = new Set()
-    for (const partial of p) {
-      const results = await piral.querySatellite(query, partial.endpoint).then(i => i.json())
-      results.head.vars.forEach(i => vars.add(i))
-      r[partial.referenceRegistry] = results
-      setQueryResults(prev => {return {...prev, [partial.referenceRegistry]: results}})
-    }
-    await propagate(r, Array.from(vars))
+    const refRegs = await piral.getReferenceRegistries(piral)
+    await propagate(results)
   }
 
-  async function propagate(r, vars) {
-    const p = piral.getData(constants.ACTIVE_PROJECT)
-    const preQuery = {}
-    Object.keys(allowedResources).map(i => allowedResources[i]).forEach(item => {Object.assign(preQuery, item)})
-    const flatRes = Object.keys(r).map(i => r[i].results.bindings).flat()
-    const ids = extractIdentifiers(flatRes, vars)
-    const concepts = await piral.getAllReferences(preQuery, ids, p)
-    piral.setDataGlobal(constants.SELECTED_CONCEPTS, concepts)
+  async function propagate(r) {
+    const ids = extractIdentifiers(r)
+    console.log('ids :>> ', ids);
+    const referenceRegistries = piral.getData(constants.REFERENCE_REGISTRY)
+    const sparql = piral.getData(constants.SPARQL_STORE)
+    let references = {}
+    for (const id of ids) {
+      const reference = await piral.findCollectionBySelector(referenceRegistries, undefined, id, sparql)
+      references = {...references, ...reference}
+    }
+    piral.setDataGlobal(constants.SELECTED_CONCEPTS, references)
   }
 
   function handleChange(panel) {
