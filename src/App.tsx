@@ -15,13 +15,23 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 import SourcesComponent from './components/SourcesComponent'
 
-const initialQuery = `
+let initialQuery = `
 PREFIX beo: <https://pi.pauwel.be/voc/buildingelement#>
 SELECT ?element_€ ?g
 WHERE { GRAPH ?g {
  ?element_€ a beo:Door .
 }}
 `;
+
+initialQuery = `
+PREFIX beo: <https://pi.pauwel.be/voc/buildingelement#>
+PREFIX props: <https://w3id.org/props#>
+SELECT ?element_€ ?g
+WHERE { GRAPH ?g {
+ ?element_€ a beo:Door ;
+  props:overallHeightIfcDoor_attribute_simple 2510.e0 .
+}}
+`
 
 const rdfContentTypes = [
   "https://www.iana.org/assignments/media-types/text/turtle"
@@ -137,10 +147,14 @@ const App = ({ piral }) => {
     const ids = extractIdentifiers(r)
     console.log('ids :>> ', ids);
     const referenceRegistries = piral.getData(constants.REFERENCE_REGISTRY)
+    console.log(referenceRegistries)
+
     const sparql = piral.getData(constants.SPARQL_STORE)
     let references = {}
     for (const id of ids) {
+      console.log(id)
       const reference = await piral.findCollectionBySelector(referenceRegistries, undefined, id, sparql)
+      console.log('reference :>> ', reference);
       references = {...references, ...reference}
     }
     piral.setDataGlobal(constants.SELECTED_CONCEPTS, references)
