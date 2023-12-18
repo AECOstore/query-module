@@ -12,6 +12,7 @@ rdfs:label "query" ;
 
 <#cd41abfc-858a-412b-8db0-326b9b867b94> a mfe:Edition ;
     doap:revision "v2" ;
-    mfe:code <http://localhost:2004/$pilet-api/0/index.js> .
+    mfe:code <https://aecostore.github.io/query-module/index.js> .
+    # mfe:code <http://localhost:2004/$pilet-api/0/index.js> .
 
     
